@@ -41,5 +41,9 @@ variable "security_group_name" {
 
 variable "route_table_rule_cider_block" {
   type    = string
-  default = var.public_subnet_id
+  default = "10.0.0.0/17"
+}
+
+variable "rt_public_subnet" {
+  type = string
 }

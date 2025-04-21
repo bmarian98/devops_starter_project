@@ -7,6 +7,6 @@ module "networking" {
   igw_name                     = "WEB"
   route_table_name             = "default"
   security_group_name          = "default"
-  route_table_rule_cider_block = "ssh"
-
+  route_table_rule_cider_block = "10.0.1.0/24"
+  rt_public_subnet             = "10.0.1.0/24"
 }

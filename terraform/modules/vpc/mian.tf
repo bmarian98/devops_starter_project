@@ -39,8 +39,8 @@ resource "aws_internet_gateway" "igw" {
 resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.vpc.id
 
-  route = {
-    cidr_block = var.public_subnet.cidr_block
+  route {
+    cidr_block = var.rt_public_subnet
     gateway_id = aws_internet_gateway.igw.id
   }
 
@@ -54,6 +54,7 @@ resource "aws_route_table" "route_table" {
 resource "aws_route" "r" {
   route_table_id         = aws_route_table.route_table.id
   destination_cidr_block = var.route_table_rule_cider_block
+  gateway_id             = aws_internet_gateway.igw.id
 }
 
 # Security groups
@@ -64,21 +65,21 @@ resource "aws_security_group" "sg" {
 
 # Security group rules
 resource "aws_vpc_security_group_ingress_rule" "allow" {
-  security_group_id = aws_security_group.allow_tls.id
-  cidr_ipv4         = aws_vpc.main.cidr_block # To  be replaced
+  security_group_id = aws_security_group.sg.id
+  cidr_ipv4         = aws_vpc.vpc.cidr_block # To  be replaced
   from_port         = 22
   ip_protocol       = "tcp"
   to_port           = 22
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
-  security_group_id = aws_security_group.allow_tls.id
+  security_group_id = aws_security_group.sg.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
-  security_group_id = aws_security_group.allow_tls.id
+  security_group_id = aws_security_group.sg.id
   cidr_ipv6         = "::/0"
   ip_protocol       = "-1" # semantically equivalent to all ports
 }

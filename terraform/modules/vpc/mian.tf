@@ -40,7 +40,7 @@ resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.vpc.id
 
   route {
-    cidr_block = var.rt_public_subnet
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
 
@@ -51,15 +51,21 @@ resource "aws_route_table" "route_table" {
 
 
 # Route rules
-resource "aws_route" "r" {
-  route_table_id         = aws_route_table.route_table.id
-  destination_cidr_block = var.route_table_rule_cider_block
-  gateway_id             = aws_internet_gateway.igw.id
+# resource "aws_route" "r" {
+#   route_table_id         = aws_route_table.route_table.id
+#   destination_cidr_block = var.route_table_rule_cider_block
+#   gateway_id             = aws_internet_gateway.igw.id
+# }
+
+resource "aws_route_table_association" "public_assoc" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.route_table.id
 }
+
 
 # Security groups
 resource "aws_security_group" "sg" {
-  name   = var.security_group_name
+  name   = "${var.security_group_name}-sg"
   vpc_id = aws_vpc.vpc.id
 }
 

@@ -19,4 +19,5 @@ module "ec2" {
   instance_ami = "ami-0dac2efb38d54a859"
   instance_type = "t2.micro"
   instance_subnet_id = module.networking.public_subnet_id
+  associate_public_ip_address = true
 }

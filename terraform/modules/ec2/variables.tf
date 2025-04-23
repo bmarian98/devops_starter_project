@@ -28,3 +28,8 @@ variable "instance_type" {
 variable "instance_subnet_id" {
   type = string
 }
+
+variable "associate_public_ip_address" {
+  type = bool
+  default = true
+}

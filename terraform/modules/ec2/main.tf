@@ -8,9 +8,9 @@ resource "aws_instance" "ec2" {
   instance_type = var.instance_type
   subnet_id     = var.instance_subnet_id
 
-   key_name = aws_key_pair.deployer.key_name
-   associate_public_ip_address = var.associate_public_ip_address
-  #security_groups =
+  key_name                    = aws_key_pair.deployer.key_name
+  associate_public_ip_address = var.associate_public_ip_address
+  security_groups             = [var.security_group_id]
 
   tags = {
     Name = "${var.instance_name}"

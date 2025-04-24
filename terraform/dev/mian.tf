@@ -12,12 +12,21 @@ module "networking" {
 }
 
 module "ec2" {
-  source = "../modules/ec2"
-  key_name = "my-ssh-key"
-  key_pair_filename = "~/.ssh/id_ed25519.pub"
-  instance_name = "ec2-mod"
-  instance_ami = "ami-0dac2efb38d54a859"
-  instance_type = "t2.micro"
-  instance_subnet_id = module.networking.public_subnet_id
+  source                      = "../modules/ec2"
+  key_name                    = "my-ssh-key"
+  key_pair_filename           = "~/.ssh/id_ed25519.pub"
+  instance_name               = "ec2-mod"
+  instance_ami                = "ami-0d8d11821a1c1678b"
+  instance_type               = "t2.micro"
+  instance_subnet_id          = module.networking.public_subnet_id
+  security_group_id           = module.networking.security_group_id
   associate_public_ip_address = true
+}
+
+resource "local_file" "inventory_file" {
+  filename = "../../ansible//inventory.ini"
+
+  content = templatefile("../../ansible//inventory.tpl", {
+    public_ip = module.ec2.public_ip_address
+  })
 }

@@ -22,3 +22,5 @@ crash.log
 
 # Ignore .terraform.lock.hcl files, which contain information about Terraform module dependencies
 .terraform.lock.hcl
+
+.vscode

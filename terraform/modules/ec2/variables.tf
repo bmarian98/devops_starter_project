@@ -1,3 +1,10 @@
+# ENV
+variable "environment" {
+  type    = string
+  default = "DEV"
+}
+
+
 # Key pair
 variable "key_name" {
   default = "ssh-key"

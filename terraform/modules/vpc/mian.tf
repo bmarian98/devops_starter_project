@@ -2,25 +2,30 @@ resource "aws_vpc" "vpc" {
   cidr_block = var.cidr_block
 
   tags = {
-    Name = "vpc-${var.vpc_name}"
+    Name        = "vpc-${var.vpc_name}"
+    Environment = var.environment
   }
 }
 
-resource "aws_subnet" "public_subnet" {
+resource "aws_subnet" "public_subnets" {
   vpc_id     = aws_vpc.vpc.id
-  cidr_block = var.cidr_public_subnet
+  count      = length(var.cidr_public_subnets)
+  cidr_block = var.cidr_public_subnets[count.index]
 
   tags = {
-    Name = "${var.vpc_name}-public-subnet"
+    Name        = "${var.vpc_name}-public-subnet-${count.index + 1}"
+    Environment = var.environment
   }
 }
 
-resource "aws_subnet" "private_subnet" {
+resource "aws_subnet" "private_subnets" {
   vpc_id     = aws_vpc.vpc.id
-  cidr_block = var.cidr_private_subnet
+  count      = length(var.cidr_private_subnets)
+  cidr_block = var.cidr_private_subnets[count.index]
 
   tags = {
-    Name = "${var.vpc_name}-private-subnet"
+    Name        = "${var.vpc_name}-private-subnet-${count.index + 1}"
+    Environment = var.environment
   }
 }
 
@@ -34,34 +39,59 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
+resource "aws_eip" "nat_public_ip" {
+  count  = var.enable_nat_gateway ? 1 : 0
+  domain = "vpc"
+}
+
+# NAT gateway
+resource "aws_nat_gateway" "nat" {
+  count         = var.enable_nat_gateway ? 1 : 0
+  subnet_id     = aws_subnet.public_subnets[0].id
+  allocation_id = aws_eip.nat_public_ip[0].id
+
+  tags = {
+    Name        = "${var.nat_gateway_name}-ngw"
+    Environment = var.environment
+  }
+
+  depends_on = [aws_internet_gateway.igw, aws_eip.nat_public_ip]
+}
 
 # Route Table
 resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.vpc.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
+  #   route {
+  #     cidr_block = "0.0.0.0/0"
+  #     gateway_id = aws_internet_gateway.igw.id
+  #   }
 
   tags = {
-    Name = "${var.route_table_name}-rt"
+    Name        = "${var.route_table_name}-rt"
+    Environment = var.environment
   }
 }
 
-
 # Route rules
-# resource "aws_route" "r" {
-#   route_table_id         = aws_route_table.route_table.id
-#   destination_cidr_block = var.route_table_rule_cider_block
-#   gateway_id             = aws_internet_gateway.igw.id
-# }
-
-resource "aws_route_table_association" "public_assoc" {
-  subnet_id      = aws_subnet.public_subnet.id
+resource "aws_route" "r" {
   route_table_id = aws_route_table.route_table.id
+
+  for_each = {
+    for id, rule in var.route_rules : id => rule
+  }
+
+  destination_cidr_block = each.value.destination_cidr_block
+  gateway_id             = lookup(each.value, "gateway_id", null)
+  nat_gateway_id         = lookup(each.value, "nat_gateway_id", null)
+  transit_gateway_id     = lookup(each.value, "transit_gateway_id", null)
 }
 
+resource "aws_route_table_association" "assoc" {
+  for_each       = { for id, subnet in aws_subnet.public_subnets : id => subnet }
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.route_table.id
+}
 
 # Security groups
 resource "aws_security_group" "sg" {
@@ -70,32 +100,16 @@ resource "aws_security_group" "sg" {
 }
 
 # Security group rules
-resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
-  security_group_id = aws_security_group.sg.id
-  cidr_ipv4         = "0.0.0.0/0" # To  be replaced
-  from_port         = 22
-  ip_protocol       = "tcp"
-  to_port           = 22
-}
+resource "aws_security_group_rule" "sg_rule" {
+  for_each = {
+    for id, rule in var.security_group_rules : "${id}" => rule
+  }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_icmp" {
   security_group_id = aws_security_group.sg.id
-  cidr_ipv4         = "0.0.0.0/0" # To  be replaced
-  from_port         = -1
-  ip_protocol       = "icmp"
-  to_port           = -1
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_http" {
-  security_group_id = aws_security_group.sg.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 80
-  ip_protocol       = "tcp"
-  to_port           = 80
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
-  security_group_id = aws_security_group.sg.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
+  type              = each.value.type
+  description       = each.value.description
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  cidr_blocks       = each.value.cidr_block
 }

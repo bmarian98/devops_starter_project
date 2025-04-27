@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: inventory
-          path: terraform/${{ github.ref_name == 'main' && 'prod' || github.ref_name }}/../../ansible/inventory.ini
+          path: /../../ansible/inventory.ini
 
   ansible:
     name: Run Ansible Playbook

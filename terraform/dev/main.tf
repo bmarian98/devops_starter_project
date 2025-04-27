@@ -92,9 +92,9 @@ module "ec2" {
 }
 
 resource "local_file" "inventory_file" {
-  filename = "../../ansible//inventory.ini"
+  filename = "${path.module}/../../ansible//inventory.ini"
 
-  content = templatefile("../../ansible//inventory.tpl", {
+  content = templatefile("${path.module}/../../ansible//inventory.tpl", {
     public_ip = module.ec2.public_ip_address
   })
 }

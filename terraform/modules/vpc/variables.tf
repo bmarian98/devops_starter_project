@@ -96,5 +96,5 @@ variable "security_group_rules" {
 
 variable "default_cidr" {
   default = "0.0.0.0/0"
-  type = string
+  type    = string
 }

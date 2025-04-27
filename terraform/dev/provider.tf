@@ -1,11 +1,11 @@
 terraform {
   backend "s3" {
-    bucket         = "terraform-tfstate-12244t"  
-    key            = "DEV/terraform.tfstate"      
-    region         = "eu-central-1"
+    bucket = "terraform-tfstate-12244t"
+    key    = "DEV/terraform.tfstate"
+    region = "eu-central-1"
     #dynamodb_table = "terraform-state-locks"      # deprecated replace with use_locking (no need dynamo db)
-    use_locking   = true
-    encrypt        = true                             
+    use_lockfile = true
+    encrypt      = true
   }
 
   required_providers {

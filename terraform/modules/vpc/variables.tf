@@ -50,14 +50,14 @@ variable "route_table_name" {
   default = "default"
 }
 
-variable "route_rules" {
-  type = list(object({
-    destination_cidr_block = string
-    gateway_id             = optional(string)
-    nat_gateway_id         = optional(string)
-    transit_gateway_id     = optional(string)
-  }))
-}
+# variable "route_rules" {
+#   type = list(object({
+#     destination_cidr_block = string
+#     gateway_id             = optional(string)
+#     nat_gateway_id         = optional(string)
+#     transit_gateway_id     = optional(string)
+#   }))
+# }
 
 # Security group
 variable "security_group_name" {
@@ -91,4 +91,10 @@ variable "security_group_rules" {
       protocol    = "-1"
       cidr_block  = ["0.0.0.0/0"]
   }]
+}
+
+
+variable "default_cidr" {
+  default = "0.0.0.0/0"
+  type = string
 }

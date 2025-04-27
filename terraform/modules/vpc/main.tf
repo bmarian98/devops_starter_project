@@ -62,11 +62,6 @@ resource "aws_nat_gateway" "nat" {
 resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.vpc.id
 
-  #   route {
-  #     cidr_block = "0.0.0.0/0"
-  #     gateway_id = aws_internet_gateway.igw.id
-  #   }
-
   tags = {
     Name        = "${var.route_table_name}-rt"
     Environment = var.environment
@@ -77,14 +72,14 @@ resource "aws_route_table" "route_table" {
 resource "aws_route" "r" {
   route_table_id = aws_route_table.route_table.id
 
-  for_each = {
-    for id, rule in var.route_rules : id => rule
-  }
+  # for_each = {
+  #   for id, rule in var.route_rules : id => rule
+  # }
 
-  destination_cidr_block = each.value.destination_cidr_block
-  gateway_id             = lookup(each.value, "gateway_id", null)
-  nat_gateway_id         = lookup(each.value, "nat_gateway_id", null)
-  transit_gateway_id     = lookup(each.value, "transit_gateway_id", null)
+  destination_cidr_block = var.default_cidr
+  gateway_id             = aws_internet_gateway.igw.id
+  nat_gateway_id         = var.enable_nat_gateway ? aws_nat_gateway.nat[0].id : null
+  # transit_gateway_id     = lookup(each.value, "transit_gateway_id", null)
 }
 
 resource "aws_route_table_association" "assoc" {

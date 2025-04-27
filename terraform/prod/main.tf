@@ -72,10 +72,10 @@ module "networking" {
       protocol    = "-1"
       cidr_block  = ["0.0.0.0/0"]
   }]
-  route_rules = [{
-    destination_cidr_block = "0.0.0.0/0"
-    gateway_id             = local.resources_id.gateway_id
-  }]
+  # route_rules = [{
+  #   destination_cidr_block = "0.0.0.0/0"
+  #   gateway_id             = local.resources_id.gateway_id
+  # }]
 }
 
 module "ec2" {

@@ -3,15 +3,15 @@ variable "enable_nat_gateway" {
   default = false
 }
 
-locals {
-  resources_id = var.enable_nat_gateway ? {
-    nat_gateway_id     = module.networking.nat_gwy_id
-    gateway_id         = module.networking.igw_id
-    transit_gateway_id = null
-    } : {
-    gateway_id = module.networking.igw_id
-  }
-}
+# locals {
+#   resources_id = var.enable_nat_gateway ? {
+#     nat_gateway_id     = module.networking.nat_gwy_id
+#     gateway_id         = module.networking.igw_id
+#     transit_gateway_id = null
+#     } : {
+#     gateway_id = module.networking.igw_id
+#   }
+# }
 
 module "networking" {
   source               = "../modules/vpc"
@@ -72,10 +72,10 @@ module "networking" {
       protocol    = "-1"
       cidr_block  = ["0.0.0.0/0"]
   }]
-  route_rules = [{
-    destination_cidr_block = "0.0.0.0/0"
-    gateway_id             = local.resources_id.gateway_id
-  }]
+  # route_rules = [{
+  #   destination_cidr_block = "0.0.0.0/0"
+  #   gateway_id             = local.resources_id.gateway_id
+  # }]
 }
 
 module "ec2" {

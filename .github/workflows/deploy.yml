@@ -1,0 +1,64 @@
+name: Deploy Infrastructure and Configure
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform/${{ github.ref_name == 'main' && 'prod' || github.ref_name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      - name: Upload Ansible Inventory
+        uses: actions/upload-artifact@v3
+        with:
+          name: inventory
+          path: terraform/${{ github.ref_name == 'main' && 'prod' || github.ref_name }}/../../ansible/inventory.ini
+
+  ansible:
+    name: Run Ansible Playbook
+    needs: terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download Ansible Inventory
+        uses: actions/download-artifact@v3
+        with:
+          name: inventory
+
+      - name: Install Ansible
+        run: sudo apt-get update && sudo apt-get install -y ansible
+
+      - name: Create vault password file
+        run: echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > vault_pass.txt
+
+      - name: Set web_environment dynamically
+        run: |
+          ENVIRONMENT=${{ github.ref_name }}
+          if [ "$ENVIRONMENT" = "main" ]; then
+            ENVIRONMENT="prod"
+          fi
+          echo "Setting web_environment to $ENVIRONMENT"
+          sed -i "s/^web_environment: .*/web_environment: ${ENVIRONMENT}/" group_vars/webservers/main.yml
+
+      - name: Run Playbook
+        run: ansible-playbook playbook.yml --vault-password-file vault_pass.txt

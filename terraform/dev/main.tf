@@ -91,10 +91,10 @@ module "ec2" {
   associate_public_ip_address = true
 }
 
-resource "local_file" "inventory_file" {
-  filename = "${path.module}/../../ansible//inventory.ini"
+# resource "local_file" "inventory_file" {
+#   filename = "${path.module}/../../ansible//inventory.ini"
 
-  content = templatefile("${path.module}/../../ansible//inventory.tpl", {
-    public_ip = module.ec2.public_ip_address
-  })
-}
+#   content = templatefile("${path.module}/../../ansible//inventory.tpl", {
+#     public_ip = module.ec2.public_ip_address
+#   })
+# }

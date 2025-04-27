@@ -82,5 +82,12 @@ jobs:
           echo "Setting web_environment to $ENVIRONMENT"
           sed -i "s/^web_environment: .*/web_environment: ${ENVIRONMENT}/" group_vars/webservers/main.yml
 
+      - name: Set up SSH private key for Ansible (use GitHub secret)
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Add host to known hosts (to avoid ssh prompt)
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          
       - name: Run Playbook
         run: ansible-playbook playbook.yml --vault-password-file vault_pass.txt

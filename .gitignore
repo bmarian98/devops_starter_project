@@ -1,26 +1,33 @@
-# Ignore Terraform files
-*.tfstate
-*.tfstate.backup
-*.tfplan
+# Local Terraform directories
 .terraform/
 
-# Ignore override files as they are usually used to override resources locally and should not be committed
+# Terraform plan files
+*.tfplan
+
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# Sensitive variable files
+*.tfvars
+
+# Override files
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
 
-# Ignore sensitive files containing provider credentials
+# Crash logs
+crash.log
+
+# Lock file
+.terraform.lock.hcl
+
+# Sensitive SSH or key files
 *.pem
 *.pem.pub
 *.key
 *.key.pub
-*.tfvars
 
-# Ignore crash log files
-crash.log
-
-# Ignore .terraform.lock.hcl files, which contain information about Terraform module dependencies
-.terraform.lock.hcl
-
-.vscode
+# VSCode settings
+.vscode/

@@ -41,3 +41,32 @@ h1 {
 .feature p {
     color: #7f8c8d;
 }
+
+/* Environment Bar Styling */
+.env-bar {
+    background: linear-gradient(135deg, #00aaff, #0044cc); /* Gradient background from blue to darker blue */
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-weight: bold;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 4px solid #2c3e50;  /* Adds a subtle bottom border for contrast */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow for depth */
+}
+
+/* Make the environment bar text stand out */
+.env-label {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Adds a slight shadow to make the text pop */
+}
+
+/* Hover effect on the env bar */
+.env-bar:hover {
+    background: linear-gradient(135deg, #00b7ff, #0055cc); /* Slightly lighter gradient on hover */
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
+}

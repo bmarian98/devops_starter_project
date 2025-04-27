@@ -82,7 +82,7 @@ module "ec2" {
   source                      = "../modules/ec2"
   environment                 = "DEV"
   key_name                    = "my-ssh-key"
-  key_pair_filename           = "~/.ssh/id_ed25519.pub"
+  key_pair_filename           = "../global/ssh_key/id_ed25519.pub"
   instance_name               = "ec2-mod"
   instance_ami                = "ami-0d8d11821a1c1678b"
   instance_type               = "t2.micro"

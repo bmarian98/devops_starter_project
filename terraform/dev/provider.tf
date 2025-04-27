@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "terraform-tfstate-12244t"
+    bucket = "terraform-tfstate-12244"
     key    = "DEV/terraform.tfstate"
     region = "eu-central-1"
     #dynamodb_table = "terraform-state-locks"      # deprecated replace with use_locking (no need dynamo db)

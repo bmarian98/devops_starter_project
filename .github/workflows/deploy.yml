@@ -46,12 +46,18 @@ jobs:
             terraform destroy -auto-approve
           fi
 
+      - name: Copy Ansible Inventory locally
+        if: ${{ github.event.inputs.action == 'apply' }}
+        run: |
+          mkdir -p upload
+          cp ../../ansible/inventory.ini upload/inventory.ini
+
       - name: Upload Ansible Inventory (if Apply is selected)
         if: ${{ github.event.inputs.action == 'apply' }}
         uses: actions/upload-artifact@v4.6.2
         with:
           name: inventory
-          path: /../../ansible/inventory.ini
+          path: upload/inventory.ini
 
   ansible:
     name: Run Ansible Playbook
@@ -66,6 +72,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: inventory
+          path: ansible/
 
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
@@ -84,9 +91,9 @@ jobs:
 
       - name: Set up SSH private key for Ansible (use GitHub secret)
         run: |
+          mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          # Add host to known hosts (to avoid ssh prompt)
           ssh-keyscan -H github.com >> ~/.ssh/known_hosts
           
       - name: Run Playbook

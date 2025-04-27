@@ -57,7 +57,7 @@ jobs:
         if: ${{ github.event.inputs.action == 'apply' }}
         run: |
           # Update the inventory file with the EC2 public IP
-          sed -i "s/{{EC2_PUBLIC_IP}}/${EC2_PUBLIC_IP}/g" terraform/${{ github.ref_name == 'main' && 'prod' || github.ref_name }}/ansible/inventory.ini
+          sed -i "s/{{EC2_PUBLIC_IP}}/${EC2_PUBLIC_IP}/g" ../../ansible/inventory.ini
 
       - name: Commit updated inventory.ini
         if: ${{ github.event.inputs.action == 'apply' }}

@@ -1,0 +1,26 @@
+---
+web_environment: "DEV"
+prometheus_version: "2.43.0"
+grafana_version: "9.5.2"
+prometheus_data_dir: "/var/lib/prometheus"
+prometheus_scrape_interval: "15s"
+prometheus_evaluation_interval: "15s"
+prometheus_targets:
+  - name: "node"
+    targets:
+      - "localhost:9100"  # Node exporter
+    labels:
+      env: "production"
+grafana_security:
+  admin_user: admin
+  admin_password: "{{ vault_grafana_admin_password }}"
+grafana_datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    ds_url: http://localhost:9090
+    isDefault: true
+grafana_dashboards:
+  - dashboard_id: 1860  # Node Exporter Full dashboard
+    revision_id: 32
+    #datasource: Prometheus

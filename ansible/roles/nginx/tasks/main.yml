@@ -1,0 +1,34 @@
+---
+- name: Install Nginx on Debian/Ubuntu
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install Nginx on RHEL/Amazon Linux
+  yum:
+    name: nginx
+    state: present
+    update_cache: yes
+  when: ansible_os_family in ["RedHat", "Amazon"]
+
+- name: Enable and start Nginx
+  systemd:
+    name: nginx
+    enabled: yes
+    state: started
+
+- name: Configure Nginx
+  template:
+    src: nginx.conf.j2
+    dest: >-
+      {{ '/etc/nginx/sites-available/default' if ansible_os_family == 'Debian'
+          else '/etc/nginx/nginx.conf' }}
+  notify: restart nginx
+
+- name: Copy environment replace script
+  ansible.builtin.copy:
+    src: replace_env.sh
+    dest: /tmp/replace_env.sh
+    mode: '0755'

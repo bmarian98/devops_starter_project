@@ -22,12 +22,6 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: PWD
-        run: |
-            echo $PWD
-            ls ../../
-            tree  ../..
-
       - name: Terraform Apply
         run: terraform apply -auto-approve
 

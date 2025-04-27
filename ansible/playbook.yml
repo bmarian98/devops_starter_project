@@ -1,0 +1,35 @@
+---
+- name: Deploy Nginx with HTML/CSS
+  hosts: webservers
+  become: true
+  
+  roles:
+    - nginx
+    - prometheus
+    - node_exporter
+    - grafana
+  
+  tasks:
+    - name: Ensure site directory exists
+      ansible.builtin.file:
+        path: /var/www/html
+        state: directory
+        mode: '0755'
+      
+    - name: Copy HTML/CSS files
+      ansible.builtin.copy:
+        src: "../code/"
+        dest: /var/www/html/
+        mode: '0644'
+
+    - name: Replace environment placeholder in HTML
+      ansible.builtin.shell:
+        cmd: /tmp/replace_env.sh /var/www/html/index.html {{ web_environment }}
+
+    - name: Restart Nginx to apply changes
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
+
+    

@@ -2,10 +2,19 @@ name: Deploy Infrastructure and Configure
 
 on:
   workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
 
 jobs:
   terraform:
-    name: Terraform Apply
+    name: Terraform Action (Apply/Destroy)
     runs-on: ubuntu-latest
 
     defaults:
@@ -24,18 +33,22 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - name: Terraform Apply or Destroy
+        run: |
+          if [ "${{ github.event.inputs.action }}" == "apply" ]; then
+            terraform apply -auto-approve
+          elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
+            terraform destroy -auto-approve
+          fi
 
-      - name: Upload Ansible Inventory
+      - name: Upload Ansible Inventory (if Apply is selected)
+        if: ${{ github.event.inputs.action == 'apply' }}
         uses: actions/upload-artifact@v4.6.2
-
         with:
           name: inventory
           path: terraform/${{ github.ref_name == 'main' && 'prod' || github.ref_name }}/../../ansible/inventory.ini

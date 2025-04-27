@@ -26,7 +26,8 @@ jobs:
         run: terraform apply -auto-approve
 
       - name: Upload Ansible Inventory
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.6.2
+
         with:
           name: inventory
           path: terraform/${{ github.ref_name == 'main' && 'prod' || github.ref_name }}/../../ansible/inventory.ini

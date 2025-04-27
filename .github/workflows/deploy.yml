@@ -46,18 +46,27 @@ jobs:
             terraform destroy -auto-approve
           fi
 
-      - name: Copy Ansible Inventory locally
+      - name: Get EC2 Public IP from Terraform Output
+        if: ${{ github.event.inputs.action == 'apply' }}
+        id: get_ip
+        run: |
+          IP=$(terraform output -raw ec2_public_ip)  # Using ec2_public_ip instead of public_ip
+          echo "EC2_PUBLIC_IP=$IP" >> $GITHUB_ENV
+
+      - name: Update Inventory with EC2 Public IP
         if: ${{ github.event.inputs.action == 'apply' }}
         run: |
-          mkdir -p upload
-          cp ../../ansible/inventory.ini upload/inventory.ini
+          # Update the inventory file with the EC2 public IP
+          sed -i "s/{{EC2_PUBLIC_IP}}/${EC2_PUBLIC_IP}/g" terraform/${{ github.ref_name == 'main' && 'prod' || github.ref_name }}/ansible/inventory.ini
 
-      - name: Upload Ansible Inventory (if Apply is selected)
+      - name: Commit updated inventory.ini
         if: ${{ github.event.inputs.action == 'apply' }}
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: inventory
-          path: upload/inventory.ini
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add terraform/${{ github.ref_name == 'main' && 'prod' || github.ref_name }}/ansible/inventory.ini
+          git commit -m "Update Ansible inventory with EC2 Public IP" || echo "No changes to commit"
+          git push
 
   ansible:
     name: Run Ansible Playbook
@@ -67,12 +76,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Download Ansible Inventory
-        uses: actions/download-artifact@v4
-        with:
-          name: inventory
-          path: ansible/
 
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
@@ -95,6 +98,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-          
+
       - name: Run Playbook
         run: ansible-playbook playbook.yml --vault-password-file vault_pass.txt

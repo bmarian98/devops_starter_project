@@ -64,7 +64,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add terraform/${{ github.ref_name == 'main' && 'prod' || github.ref_name }}/ansible/inventory.ini
+          git add ../../ansible/inventory.ini
           git commit -m "Update Ansible inventory with EC2 Public IP" || echo "No changes to commit"
           git push
 

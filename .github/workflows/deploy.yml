@@ -62,10 +62,11 @@ jobs:
       - name: Commit updated inventory.ini
         if: ${{ github.event.inputs.action == 'apply' }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git add ../../ansible/inventory.ini
           git commit -m "Update Ansible inventory with EC2 Public IP" || echo "No changes to commit"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
           git push
 
   ansible:

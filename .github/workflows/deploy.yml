@@ -82,8 +82,12 @@ jobs:
         working-directory: ansible
 
     steps:
-      - name: Checkout code
+      - name: Checkout code with latest changes
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible

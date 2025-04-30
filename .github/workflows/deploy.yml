@@ -75,6 +75,7 @@ jobs:
   ansible:
     name: Run Ansible Playbook
     needs: terraform
+    if: ${{ github.event.inputs.action == 'apply' }}
     runs-on: ubuntu-latest
 
     defaults:
